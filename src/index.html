@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemeGen - Mood-Based Meme Generator</title>
+    <style>
+      :root {
+        --primary-color: #ff5722;
+        --secondary-color: #ff9800;
+        --background-color: #fafafa;
+        --text-color: #212121;
+        --card-bg: #ffffff;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .input-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+      }
+
+      .option-card {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 40%;
+        min-width: 250px;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .option-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .option-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+      }
+
+      .btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #e64a19;
+      }
+
+      .recent-memes {
+        margin-top: 2rem;
+      }
+
+      .meme-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .meme-item {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .meme-img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        background-color: #ddd;
+      }
+
+      .meme-info {
+        padding: 0.5rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 1rem;
+        margin-top: 2rem;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 600px) {
+        .option-card {
+          width: 100%;
+        }
+      }
+
+      #camera-feed {
+        width: 100%;
+        height: 300px;
+        background-color: #ddd;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <h1>MemeWorld</h1>
+      <p>Generate memes based on your mood!</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Input Options -->
+      <div class="card">
+        <h2>How would you like to create your meme?</h2>
+        <div class="input-options">
+          <div class="option-card" id="text-option">
+            <div class="option-icon">✏️</div>
+            <h3>Text Input</h3>
+            <p>Tell us how you're feeling</p>
+          </div>
+          <div class="option-card" id="face-option">
+            <div class="option-icon">📷</div>
+            <h3>Face Recognition</h3>
+            <p>Let us analyze your mood</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Input Section (Hidden by default) -->
+      <div class="card" id="text-input-section" style="display: none">
+        <h2>Tell us how you're feeling</h2>
+        <div>
+          <label for="mood-input">Your mood:</label>
+          <input
+            type="text"
+            id="mood-input"
+            placeholder="e.g., happy, sad, confused..."
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              margin: 0.5rem 0;
+              border-radius: 4px;
+              border: 1px solid #ddd;
+            "
+          />
+        </div>
+        <div>
+          <label for="context-input">Any context? (optional)</label>
+          <textarea
+            id="context-input"
+            placeholder="e.g., failed an exam, got a promotion..."
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              margin: 0.5rem 0;
+              border-radius: 4px;
+              border: 1px solid #ddd;
+              height: 100px;
+            "
+          ></textarea>
+        </div>
+        <button class="btn" id="generate-btn">Generate Meme</button>
+      </div>
+
+      <!-- Face Recognition Section (Hidden by default) -->
+      <div class="card" id="face-input-section" style="display: none">
+        <h2>Let's analyze your mood</h2>
+        <div id="camera-feed">
+          <video id="video" autoplay></video>
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+          "
+        >
+          <button class="btn" id="capture-btn">Capture</button>
+          <button
+            class="btn"
+            id="upload-btn"
+            style="background-color: #666"
+            disabled
+          >
+            Upload Image
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Memes Section -->
+      <div class="recent-memes">
+        <h2>Popular Memes</h2>
+        <div class="meme-grid">
+          <div class="meme-item">
+            <div class="meme-img"></div>
+            <div class="meme-info">
+              <p>Monday Mood</p>
+            </div>
+          </div>
+          <div class="meme-item">
+            <div class="meme-img"></div>
+            <div class="meme-info">
+              <p>Exam Season</p>
+            </div>
+          </div>
+          <div class="meme-item">
+            <div class="meme-img"></div>
+            <div class="meme-info">
+              <p>Weekend Vibes</p>
+            </div>
+          </div>
+          <div class="meme-item">
+            <div class="meme-img"></div>
+            <div class="meme-info">
+              <p>Coding All Night</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Show and hide sections
+      document
+        .getElementById("text-option")
+        .addEventListener("click", function () {
+          document.getElementById("text-input-section").style.display = "block";
+          document.getElementById("face-input-section").style.display = "none";
+        });
+
+      document
+        .getElementById("face-option")
+        .addEventListener("click", function () {
+          document.getElementById("face-input-section").style.display = "block";
+          document.getElementById("text-input-section").style.display = "none";
+
+          // Access the camera
+          const video = document.getElementById("video");
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+            })
+            .catch((err) => {
+              console.error("Error accessing the camera: ", err);
+            });
+        });
+
+      // Capture image logic
+      document
+        .getElementById("capture-btn")
+        .addEventListener("click", function () {
+          const video = document.getElementById("video");
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+
+          // Ensure video dimensions are available
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            console.error("Video dimensions are not available yet.");
+            return;
+          }
+
+          // Set canvas dimensions to match video
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          // Draw the current video frame to the canvas
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // Convert the canvas to a data URL (image)
+          const imageData = canvas.toDataURL("image/png");
+
+          console.log("Image captured:", imageData); // Log the captured image (base64 string)
+
+          // Disable the "Capture" button and enable the "Upload Image" button
+          document.getElementById("capture-btn").disabled = true;
+          const uploadButton = document.getElementById("upload-btn");
+          uploadButton.disabled = false;
+
+          // Add upload logic
+          uploadButton.addEventListener("click", function () {
+            console.log("Sending image to face recognition model...");
+            // Simulate sending the image to the face recognition model
+            // Replace this with actual API call logic
+            setTimeout(() => {
+              console.log("Image sent successfully!");
+            }, 1000);
+          });
+        });
+    </script>
+  </body>
+</html>
